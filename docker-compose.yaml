@@ -9,3 +9,5 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:h2:mem:db
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - POD_ID=${POD_ID}
+      - DATACENTER=${DATACENTER}
