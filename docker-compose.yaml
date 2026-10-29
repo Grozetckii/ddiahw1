@@ -69,3 +69,19 @@ services:
         condition: service_healthy
       grafana:
         condition: service_healthy
+
+  k6:
+    image: grafana/k6:1.8.2
+    volumes:
+      - ./k6-script.js:/script.js:ro
+    command: run /script.js
+    environment:
+      - APP_HOST_1=app-1
+      - APP_HOST_2=app-2
+    depends_on:
+      dashboard-generator:
+        condition: service_completed_successfully
+      app-1:
+        condition: service_healthy
+      app-2:
+        condition: service_healthy

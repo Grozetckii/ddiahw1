@@ -23,6 +23,12 @@ public class ItemService {
     }
 
     public void createItem(String content) {
+        if ("1".equals(content)) {
+            throw new NullPointerException("content is 1");
+        } else if ("2".equals(content)) {
+            throw new IllegalArgumentException("content is 2");
+        }
+
         Item newItem = new Item();
         newItem.setContent(content);
 
@@ -31,6 +37,12 @@ public class ItemService {
 
     @Transactional
     public ItemDto updateContentById(Long id, String newContent) {
+        if ("1".equals(newContent)) {
+            throw new NullPointerException("newContent is 1");
+        } else if ("2".equals(newContent)) {
+            throw new IllegalArgumentException("newContent is 2");
+        }
+
         Item item = getItemById(id);
         item.setContent(newContent);
 
