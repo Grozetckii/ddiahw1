@@ -28,7 +28,6 @@ public class ItemController {
     @PostMapping
     public ResponseEntity<Void> createItem(@RequestParam String content) {
         itemService.createItem(content);
-
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
