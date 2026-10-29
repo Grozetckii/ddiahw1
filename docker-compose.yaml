@@ -1,13 +1,71 @@
 version: '3.8'
 
 services:
-  app:
+  app-1:
+    container_name: ddiahw1-app1
     build: .
-    container_name: ddiahw1-service
-    ports:
-      - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:h2:mem:db
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
-      - POD_ID=${POD_ID}
-      - DATACENTER=${DATACENTER}
+      - POD_ID=${POD_ID_1}
+      - DATACENTER=${DATACENTER_1}
+    ports:
+      - "8081:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app-2:
+    container_name: ddiahw1-app2
+    build: .
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:db
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - POD_ID=${POD_ID_2}
+      - DATACENTER=${DATACENTER_2}
+    ports:
+      - "8082:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:13.2
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  dashboard-generator:
+    build: ./generator
+    environment:
+      - GRAFANA_URL=http://grafana:3000
+      - GRAFANA_USER=admin
+      - GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
+      - APP_URL=http://app-1:8080
+    depends_on:
+      app-1:
+        condition: service_healthy
+      app-2:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
