@@ -9,14 +9,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include: health, prometheus
       base-path: /
       path-mapping:
         prometheus: metrics
+        health: health
   metrics:
     distribution:
       percentiles-histogram:
         http.server.requests: true
     tags:
-      pod_id: ${POD_ID:unknown}
-      datacenter: ${DATACENTER:unknown}
+      pod_id: ${POD_ID:unknown-pod}
+      datacenter: ${DATACENTER:unknown-dc}
